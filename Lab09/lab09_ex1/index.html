@@ -1,0 +1,62 @@
+﻿<html>
+<meta charset="UTF-8">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<style>
+    table {
+        border-spacing: 0;
+        border-collapse: collapse;
+    }
+
+    td {
+        border: 1px solid #0f0f0f;
+    }
+</style>
+<script>
+function changeText(){
+ xmlhttp = new XMLHttpRequest();
+ xmlhttp.open("GET","http://192.168.37.37:3017/getstring", true);
+ xmlhttp.onreadystatechange=function() {
+ if (xmlhttp.readyState==4 && xmlhttp.status==200) {
+ var arr = JSON.parse(xmlhttp.responseText);
+ var out = "<table>";
+ var i;
+ for(i = 0; i < arr.length; i++) {
+ out += '<tr><td>' + arr[i].quote + '</td></tr>';
+ }
+ document.getElementById("quotes").innerHTML = out+"</table>";
+ }
+ }
+ xmlhttp.send();
+}
+</script>
+<button onclick='javascript:changeText()'>demo XHR</button> &nbsp;
+<button id="my-first-try">try ajax</button> &nbsp;
+<button id="my-2nd-demo">demo-2</button> &nbsp;
+<button id="finaldemo">demo-3</button> &nbsp;
+<p id='quotes'>Aici va fi afișat răspunsul</p>
+<script>
+$(document).ready(function () {
+ $("#my-first-try").click(function(){
+ $.ajax({url: "/getstring", success: function(result){
+ console.log(result); // javascript Array
+ $("#quotes").html(result.toString());
+ }});
+ });
+ $("#my-2nd-demo").click(function(){
+ $.ajax({url: "/getstring", success: function(result){
+ $("#quotes").html(JSON.stringify(result));
+ }});
+ });
+ $("#finaldemo").click(function(){
+ $.ajax({url: "/getstring", success: function(result){
+ let out="<ul>"
+ result.forEach(function(value) {
+ console.log(value); // javascript Array
+ out+="<li>"+value.quote+"</li>";
+ });
+ $("#quotes").html(out);
+ }});
+ });
+});
+</script>
+</html>

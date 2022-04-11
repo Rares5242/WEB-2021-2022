@@ -1,0 +1,86 @@
+﻿<html>
+<meta charset="UTF-8">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<style>
+    table {
+        border-spacing: 0;
+        border-collapse: collapse;
+    }
+
+    td {
+        border: 1px solid #0f0f0f;
+    }
+</style>
+<form>
+    <input type="radio" id="grp1" name="grupa" value="1">pending
+    <input type="radio" id="grp2" name="grupa" value="2">ongoing
+    <input type="radio" id="grp3" name="grupa" value="3">completed
+</form>
+<p id='test'>Aici va fi afișat răspunsul</p>
+<script>
+    var arrStudents;
+    function updateTable(nGrupa) {
+        var out = `<table>
+ <tr>
+ <td>Nr.</td>
+ <td>Student</td>
+ <td>Status</td>
+ </tr>
+ `;
+        var i;
+        for (i = 0; i < arrStudents.length; i++) {
+            if (arrStudents[i].grp == nGrupa)
+                if (arrStudents[i].nr != 29)
+                    out += `<tr>
+ <td>${arrStudents[i].nr}</td>
+ <td><a href='http://192.168.37.37/~${arrStudents[i].user}/'>${arrStudents[i].nume}</a></td>
+ <td> &nbsp; </td>
+ </tr>`;
+                else {
+                    out += `<tr>
+ <td>${arrStudents[i].nr}</td>
+ <td><a href='http://localhost:30${arrStudents[i].nr}/tasks'>${arrStudents[i].nume}</a></td>
+ <td> &nbsp; </td>
+ </tr>`;
+                }
+        }
+        document.getElementById("test").innerHTML = out + "</table>";
+    }
+    function changeText(nGrupa) {
+        xmlhttp = new XMLHttpRequest();
+        xmlhttp.open("GET", "http://192.168.37.37:3017/getstring", true);
+        xmlhttp.onreadystatechange = function () {
+            if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                arrStudents = JSON.parse(xmlhttp.responseText);
+                updateTable(nGrupa);
+            }
+        }
+        xmlhttp.send();
+    }
+    $(document).ready(function () {
+        $("input[name=grupa]:radio").change(function () {
+            let nrGrupa = $(this).val();
+            if (typeof (arrStudents) == "undefined") {
+                changeText(nrGrupa);
+            } else {
+                updateTable(nrGrupa);
+            }
+        })
+    });
+    function listTasks() {
+        fetch('http://192.168.37.37:3017/tasks')
+            .then(res => res.json())
+            .then(res => {
+                let out = "";
+                res.map(task => {
+                    //console.log(`${user.id}: ${user.first_name} ${user.last_name}`);
+                    out += `<br/>${task.name}: ${task.status}`
+                });
+                //console.log(out);
+                document.getElementById("tasks").innerHTML = out;
+            })
+    }
+</script>
+<button onclick='javascript:listTasks()'>Tasks</button>
+<p id='tasks'>tasks here</p>
+</html>
